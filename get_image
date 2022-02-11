@@ -1,0 +1,49 @@
+function usage() {
+  cat <<EOL
+USAGE: ./get_image https://some.url "filepath-safe description of a picture" [posterize-level?]
+
+Third optional argument MUST be a number, which shall be used as a level of posterization.
+For low levels of posterization, ImageMagick is known to provide extremely small coloured GIFs, if that is the case, the GIF shall be kept.
+If resized JPG is smaller than posterized GIF, however, it shall be kept instead.
+
+If the third argument isn't supplied, the image will be saved as a monochrome GIF.
+
+It expects the following two sub-directories in the CWD:
+ 1. "High Fidelity"
+ 2. "Archive"
+
+With Archive used to sync the data via third party services which have no interest to give out huge disk quotas to strangers.
+EOL
+}
+
+if [[ -z "$1" ]]; then
+  usage
+  exit 221
+fi
+
+if [[ -z "$2" ]]; then
+  usage
+  exit 222
+fi
+
+mkdir "High Fidelity"
+mkdir "Archive"
+
+wget "$1" -O "original"
+convert original -resize "640>" in.jpg
+
+convert original "High Fidelity/${2}.full.jpg"
+cp "in.jpg" "High Fidelity/${2}.jpg"
+
+if [[ -z "$3" ]]; then
+  convert in.jpg -monochrome "Archive/${2}.gif"
+else
+  convert in.jpg -posterize "$3" "Archive/${2}.gif"
+  if [[ $(stat -c%s "Archive/${2}.gif") -ge $(stat -c%s "in.jpg") ]]; then
+    rm "Archive/${2}.gif"
+    cp "in.jpg" "Archive/${2}.jpg"
+    rm "High Fidelity/${2}.jpg"
+  fi
+fi
+
+rm -v original in.jpg

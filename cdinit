@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -x
+
+_cdnErrMsg=".cdn already exists"
+
+# Exit if dot-cdn exists
+if [ -d ".cdn" ]; then
+  echo "$_cdnErrMsg"
+  exit 228
+elif [ -f ".cdn" ]; then
+  echo "$_cdnErrMsg"
+  exit 227
+fi
+
+mkdir ".cdn"
+echo -n "$(basename "$(pwd)")" > .cdn/bucket
+echo -n "cdn.doma.dev" > .cdn/host
+
+echo "Done"

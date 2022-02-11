@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -x
+
+# Exit if file or directory is not submitted or not a valid file or directory
+if [ -z "$1" ]; then
+  echo "Supply file to be CDN'ed in the first argument"
+  exit 228
+fi
+if [ ! -f "$1" ]; then
+  echo "warning: $1 is not a file"
+  if [ ! -d "$1" ]; then
+    echo "$1 is also not a directory"
+    exit 227
+  fi
+fi
+_localPath="$1"
+
+# Use dot-cdn configured bucket by default
+_bucket="$(cat .cdn/bucket)"
+# Let user override with 2nd CMD argument
+if [ -n "$2" ]; then
+  _bucket="$2"
+fi
+
+# Use doma cdn by default
+_host="cdn.doma.dev"
+# Use dot-cdn configured host otherwise
+if [ -f ".cdn/host" ]; then
+  _host="$(head -n1 < ".cdn/host")"
+fi
+# Let user override with 3rd CMD argument
+if [ -n "$3" ]; then
+  _host="$3"
+fi
+
+# Build CDN rsync-compatible FQN
+_cdn="cdn@${_bucket}.${_host}:/cdn/${_bucket}"
+
+# We don't care about the port, since CDN hosts should be configured in
+# .ssh/config
+#
+# We don't use -a because we want to change ownership to `cdn` user and make
+# files world-readable
+rsync -Prve 'ssh' "$_localPath" "${_cdn}"

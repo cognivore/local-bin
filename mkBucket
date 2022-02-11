@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+set -x
+
+# We want to have a 'cdn' user in the system
+if [ -z "$(id -u cdn 2>/dev/null)" ]; then
+  echo "User 'cdn' not found. Please create one"
+  exit 72
+fi
+
+# This script wants to have `dig`, `certbot`, `npm`, `npx`, and `nginx`
+
+_certbotInstallMsg="sudo snap install certbot --classic"
+
+if [ -z "$(which dig)" ]; then
+  echo "'dig' not found, please apt install 'bind9-dnsutils'"
+  exit 35
+fi
+
+if [ -z "$(which certbot)" ]; then
+  echo "'certbot' is not installed, install it with"
+  echo "$_certbotInstallMsg"
+  exit 33
+fi
+
+if [ ! "$(certbot --version)" == "certbot 1.9.0" ]; then
+  echo "'certbot' must be of version 1.9.0"
+  echo "$_certbotInstallMsg"
+  exit 133
+fi
+
+if [ -z "$(which nginx)" ]; then
+  echo "'nginx' not found. Please install and configure it."
+  echo 65
+fi
+
+if [ -z "$(which npx)" ]; then
+  echo "'npx' and 'npm' are not found. Please apt install latest version of 'npm'"
+  echo 72
+fi
+
+# This script wants you to supply all the arguments explicitly
+
+if [ -z "$1" ]; then
+  echo "Bucket name, which will be"
+  echo "  - the name of directory under /cdn/:bucketName"
+  echo "  - the lowest level domain of your cdn :bucketName.cdn.domain.tld"
+  echo "MUST be provided explicitly as the first argument of this script."
+  exit 56
+fi
+_bucket="$1"
+
+if [ -z "$2" ]; then
+  echo "CDN FQDN, which will be used to"
+  echo "  - generate /etc/nginx/sites-enabled/:cdnFqdn"
+  echo "  - run 'certbot --nginx' against"
+  exit 36
+fi
+_host="$2"
+
+if [ -z "$3" ]; then
+  echo "You MUST provide local CDN server's port as the third argument"
+  echo "It will be used to configure local 'nginx' to reverse proxy there"
+fi
+_port="$3"
+
+_fqdn="${_bucket}.${_host}"
+
+if [ -z "$(dig +short "${_fqdn}")" ]; then
+  echo "An A or CNAME DNS record for ${_fqdn} *MUST* exist"
+  echo "dig +short found no such record"
+fi
+
+mkdir -p "/cdn/${_bucket}"
+echo "Trying to 'cd /cdn/${_bucket}'"
+cd "/cdn/${_bucket}" || exit 111
+cat > "/cdn/${_bucket}/package.json" <<EOL
+{
+  "name": "${_bucket}-cdn",
+  "version": "1.0.0",
+  "description": "Simple CDN for ${_bucket} project",
+  "main": "nan.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "doma.dev",
+  "license": "WTFPL"
+}
+EOL
+chown -R cdn "/cdn/"
+chown -R cdn "/cdn/${_bucket}"
+su cdn -c 'npm i --save-dev serve'
+echo "Trying to 'cd -'"
+cd - || exit 111
+
+cat > "/etc/nginx/sites-enabled/${_fqdn}" <<EOL
+server {
+  listen 80;
+  server_name ${_fqdn};
+  charset utf-8;
+
+  location / {
+    proxy_pass http://127.0.0.1:${_port};
+    proxy_max_temp_file_size 0;
+  }
+}
+EOL
+
+cat > "/lib/systemd/system/${_fqdn}.service" <<EOL
+[Unit]
+Description=${_bucket} bucket of ${_host} CDN
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=cdn
+WorkingDirectory=/cdn/${_bucket}
+ExecStartPre=
+ExecStart=npx serve -l ${_port}
+ExecStartPost=
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+systemctl enable "${_fqdn}" && systemctl start "${_fqdn}"
+nginx -t && systemctl restart nginx
+
+certbot --nginx

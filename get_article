@@ -1,0 +1,12 @@
+if [[ -z "$1" ]]; then
+  echo "There is no URL to obtain an article from provided in the first argument"
+  exit 221
+fi
+
+if [[ -z "$2" ]]; then
+  echo "There is no destination file to append to provided in the second argument"
+  exit 222
+fi
+
+# _domain="$(echo "$1" | cut -d\/ -f3)"
+html2md -i "$1" --opt-horizontal-rule="---" >> "$2"
