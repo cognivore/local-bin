@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function usage() {
   cat <<EOL
 USAGE: ./get_image https://some.url "filepath-safe description of a picture" [posterize-level?]

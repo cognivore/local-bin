@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ -z "$1" ]]; then
   echo "There is no URL to obtain an article from provided in the first argument"
   exit 221
