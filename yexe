@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+_mix_env="prod"
+
+if [ -n "$1" ]; then
+    _mix_env="dev"
+fi
+shift
+
+
+_yggself=""
+if [ -z "$1" ]; then
+    # This is a WSL workaround
+    _yggself=$(sudo yggdrasilctl getSelf | grep address | cut -d\  -f3)
+    if [ -z "$_yggself" ]; then
+        sudo setsid yggdrasil -useconffile "/etc/yggdrasil.conf" &
+        _yggself=$(sudo yggdrasilctl getSelf | grep address | cut -d\  -f3)
+    fi
+
+    # A loop complementary to the WSL workaround
+    while [ -z "$_yggself" ]; do
+        sleep 1
+        _yggself=$(sudo yggdrasilctl getSelf | grep address | cut -d\  -f3)
+    done
+fi
+
+# Make sure we're good to go
+mix deps.get
+MIX_ENV="$_mix_env" mix compile
+
+# Main
+export ERL_AFLAGS="-kernel shell_history enabled"
+MIX_ENV="$_mix_env" iex --name "$(pwd | rev | cut -d '/' -f -1 | rev)@${_yggself}" --erl "-proto_dist inet6_tcp -pa _build/**/lib/**/ebin" -S mix
