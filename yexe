@@ -8,7 +8,7 @@ fi
 shift
 
 
-_yggself=""
+_yggself="localhost"
 if [ -z "$1" ]; then
     # This is a WSL workaround
     _yggself=$(sudo yggdrasilctl getSelf | grep address | cut -d\  -f3)
