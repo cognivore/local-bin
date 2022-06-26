@@ -15,6 +15,7 @@
     # Stuff that has to be externally configured
     pkgs.gnupg
     pkgs.darcs
+    pkgs.tmux
     ## Stuff that isn't yet implemented
     # domaPakages.passveil
 ]
