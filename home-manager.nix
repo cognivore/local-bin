@@ -11,7 +11,8 @@ let npkgs = pkgs.nodePackages; in
     pkgs.nodejs-18_x
     npkgs.typescript
     npkgs.node-gyp
-    # npkgs.tsm
+    npkgs.tsm
+
     # Stuff that hasn't been yet confirmed to work
 
     ## Stuff that I don't know how to find
