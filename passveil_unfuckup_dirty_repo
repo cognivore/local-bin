@@ -8,8 +8,10 @@ if [[ -n "$1" ]]; then
   _store="$1"
 fi
 
-passveil --store "$_store" undo
+# passveil --store "$_store" undo
 
 _repo="${_store}/store"
 cd "$_repo" || (echo "${_repo} not found" ; exit 228)
 darcs status | cut -d\  -f2 | parallel 'rm -rvf "{1}"'
+darcs record -a -m "unfuckup"
+darcs obliterate --no-cache --not-in-remote
