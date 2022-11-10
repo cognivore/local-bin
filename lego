@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+[ ! -f ./lean_packages/LSpec/build/bin/lspec ] && lake build lspec
 something="$(grep lean_exe lakefile.lean | head -n 1 | cut -d\  -f2)"
 lake build "$something" && \
-    ./build/bin/"$something" && \
-    ./lean_packages/LSpec/build/bin/lspec
+    ./build/bin/"$something" # && \
+#    ./lean_packages/LSpec/build/bin/lspec
+lake exe lspec
 # Builds and runs an arbitrary Lean 4 binary, tests the project with LSpec right after
