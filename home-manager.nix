@@ -4,26 +4,30 @@
 
 let npkgs = pkgs.nodePackages; in
 [
-    pkgs.httpie
+
     pkgs.jq
     pkgs.curl
     pkgs.imagemagick
     pkgs.nodejs-18_x
     npkgs.typescript
     npkgs.node-gyp
-    npkgs.tsm
+    pkgs.elan
+    pkgs.go
 
-    # Stuff that hasn't been yet confirmed to work
+    ## Used to work, but now is broken
+    # npkgs.tsm
+    # pkgs.httpie
 
-    ## Stuff that I don't know how to find
+    ## I don't know how to find these binaries, but I'd like to have them:
     # pkgs.dd
     # pkgs.pv
-    # Stuff that has to be externally configured
+
+    # Have to be externally configured:
     pkgs.gnupg
     pkgs.darcs
     pkgs.tmux
-    ## Stuff that isn't yet implemented
+
+    ## To be packaged (by us?)
     # domaPakages.passveil
-    pkgs.elan
-    pkgs.go
+
 ]
