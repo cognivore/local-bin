@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Set the IFS (internal field separator) to a newline character
+# so that we can iterate over the dependencies in the `mix.exs` file
+IFS=$'\n'
+
+# Find all of the dependencies in the `mix.exs` file
+deps=$(grep '{:.*, .*}' mix.exs | grep -o '{:.*}' | sed 's/{://' | sed 's/}//')
+
+# Print the start of the `defp deps do` block
+echo "  defp deps do"
+echo "    ["
+
+# Iterate over the dependencies and update the version number for each one
+for dep in $deps; do
+  # Extract the package name and version from the dependency string
+  package=$(echo "$dep" | awk -F',' '{print $1}' | tr -d '[:space:]')
+  _version=$(echo "$dep" | awk -F',' '{print $2}' | tr -d '[:space:]')
+  latest_version="\"~> $(mix hex.info "$package" | grep 'Releases:' | awk -F':' '{print $2}' | awk '{$1=$1};1' | tr -d ',' | cut -d\  -f1)\""
+  # Extract any other parameters from the dependency string
+  params_untrimmed=$(echo "$dep" | awk -F',' 'BEGIN { OFS = "," } {$1=""; $2=""; print $0}')
+  # Trim commas and spaces from the left side of the params_untrimmed string.
+  # Removes ' 's and ','s from the beginning of the string!
+  params=$(echo "$params_untrimmed" | sed 's/^[ \t,]*//')
+  # Print the updated dependency with the original parameters
+  if [ -n "$params" ]; then
+    echo "      {:$package, $latest_version, $params},"
+  else
+    echo "      {:$package, $latest_version},"
+  fi
+done
+
+# Print the end of the `defp deps do` block
+echo "    ]"
+echo "  end"
