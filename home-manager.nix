@@ -12,12 +12,14 @@ let npkgs = pkgs.nodePackages; in
     npkgs.typescript
     npkgs.node-gyp
     pkgs.elan
+    pkgs.neovim
     pkgs.go
 
     ## Used to work, but now is broken
     # npkgs.tsm
     # pkgs.httpie
 
+    # Stuff that hasn't been yet confirmed to work
     ## I don't know how to find these binaries, but I'd like to have them:
     # pkgs.dd
     # pkgs.pv
@@ -29,5 +31,4 @@ let npkgs = pkgs.nodePackages; in
 
     ## To be packaged (by us?)
     # domaPakages.passveil
-
 ]
