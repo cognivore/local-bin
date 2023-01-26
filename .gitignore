@@ -11,5 +11,6 @@ purerl*
 spago
 share/
 yatima
-wasm-sandbox
 lurkrs
+wasm-sandbox
+result
