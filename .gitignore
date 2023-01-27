@@ -9,7 +9,7 @@ node
 purs*
 purerl*
 spago
-share/
+./share/
 yatima
 lurkrs
 wasm-sandbox
