@@ -1,0 +1,14 @@
+# Nix!
+if [ -e /home/sweater/.nix-profile/etc/profile.d/nix.sh ]; then . /home/sweater/.nix-profile/etc/profile.d/nix.sh; fi
+# Direnv!
+export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
+export NIX_PATH="home-manager=${HOME}/home-manager:${NIX_PATH}"
+source $HOME/.nix-profile/etc/profile.d/hm-session-vars.sh
+eval "$(direnv hook bash)"
+
+# Elan
+export PATH=$HOME/.elan/bin:$PATH
+source $HOME/.elan/env
+
+# PATH!
+export PATH=$HOME/.local/nbin:$HOME/.local/bin:$HOME/github/usr-local-bin:$PATH:$HOME/npm/bin:$HOME/github/mkbook/bin
