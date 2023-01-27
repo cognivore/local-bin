@@ -46,4 +46,6 @@ let npkgs = pkgs.nodePackages; in
     pkgs.fzf-obc
     pkgs.sysz
     pkgs.tmuxPlugins.tmux-fzf
+
+    # Getting ambitious!
 ]

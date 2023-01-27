@@ -45,14 +45,6 @@ export SSH_AUTH_SOCK   # enable gpg-agent for ssh
 
 MAIL="/var/spool/mail/sweater" && export MAIL
 
-# Nix!
-if [ -e /home/sweater/.nix-profile/etc/profile.d/nix.sh ]; then . /home/sweater/.nix-profile/etc/profile.d/nix.sh; fi
-# Direnv!
-export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
-export NIX_PATH="home-manager=${HOME}/home-manager:${NIX_PATH}"
-source $HOME/.nix-profile/etc/profile.d/hm-session-vars.sh
-eval "$(direnv hook bash)"
-
 # Android bullshit
 export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
@@ -61,11 +53,9 @@ export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 . "$HOME/.cargo/env"
 
-# Elan
-export PATH=$HOME/.elan/bin:$PATH
-source $HOME/.elan/env
-
 # fzf
 [ -f ~/.local/nbin/fzf-bash-completion.sh ] && source ~/.local/nbin/fzf-bash-completion.sh
 # Bind tab to fzf_bash_completion
 bind -x '"\t": fzf_bash_completion'
+
+source $HOME/.bashrc_essentials
