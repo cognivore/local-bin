@@ -1,23 +1,16 @@
 { pkgs, ...}:
 
 # This is a very very dumb function which, when given attrset with key "pkgs" shall
-#####
-# Remember, your home-manager config is ~/.config/nixpkgs/home.nix
 
 let npkgs = pkgs.nodePackages; in
 [
     pkgs.jq
     pkgs.curl
     pkgs.imagemagick
-    pkgs.nodejs-18_x
-    npkgs.typescript
-    npkgs.node-gyp
     pkgs.elan
     pkgs.go
 
-    ## Used to work, but now is broken
-    # npkgs.tsm
-    # pkgs.httpie
+    pkgs.pinentry-curses
 
     # Stuff that hasn't been yet confirmed to work
     ## I don't know how to find these binaries, but I'd like to have them:
@@ -36,7 +29,7 @@ let npkgs = pkgs.nodePackages; in
     pkgs.tree-sitter
     pkgs.lazygit
     pkgs.bottom
-    pkgs.python
+    pkgs.python3
     pkgs.luajitPackages.luarocks
     # NodeJS is installed anyway
     # NeoVim is installed as a binary release
@@ -46,6 +39,4 @@ let npkgs = pkgs.nodePackages; in
     pkgs.fzf-obc
     pkgs.sysz
     pkgs.tmuxPlugins.tmux-fzf
-
-    # Getting ambitious!
 ]
